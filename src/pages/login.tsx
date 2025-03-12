@@ -4,7 +4,7 @@ import { Button, Card, CardBody } from '@heroui/react';
 import { FcGoogle } from 'react-icons/fc';
 import { auth, provider } from '@/config/firebase';
 import { signInWithPopup, signOut } from 'firebase/auth';
-import { doc, getDoc } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 import { db } from '@/config/firebase';
 import { useAuthStore } from '@/store/useAuthStore';
 import { ThemeSwitch } from '@/components/theme-switch';
@@ -15,63 +15,42 @@ export default function LoginPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (user) {
-      console.log('✅ User sudah login, redirect ke dashboard');
-      navigate('/dashboard');
-    }
+    if (user) navigate('/dashboard');
   }, [user, navigate]);
 
-  useEffect(() => {
-    console.log('🛑 Error State Updated:', error);
-  }, [error]);
+  useEffect(() => {}, [error]);
 
   const handleGoogleSignIn = async () => {
-    setError(null);
-    console.log('🔄 Memulai proses login...');
-
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
-      console.log('🔍 User Google Auth:', user);
-      console.log('🔥 Firestore instance:', db);
+      if (user.email) {
+        const usersRef = collection(db, 'users');
+        const q = query(usersRef, where('email', '==', user.email));
+        const querySnapshot = await getDocs(q);
 
-      if (user) {
-        const userDocRef = doc(db, 'users', user.uid);
-        console.log('📂 Mencari user di Firestore dengan UID:', user.uid);
+        if (!querySnapshot.empty) {
+          const userData = querySnapshot.docs[0].data();
 
-        const userDoc = await getDoc(userDocRef);
-        console.log(
-          '📃 Firestore Response:',
-          userDoc.exists() ? userDoc.data() : 'User tidak ditemukan'
-        );
-
-        if (userDoc.exists()) {
-          console.log('✅ User ditemukan di Firestore:', userDoc.data());
-
-          const userData = userDoc.data();
           setUser({
             uid: user.uid,
             displayName: user.displayName || 'User',
-            email: user.email || '',
+            email: user.email,
             photoURL: user.photoURL || '',
             role: userData.role || 'user',
           });
 
           navigate('/dashboard');
         } else {
-          console.log('❌ User tidak terdaftar di Firestore!');
-
           localStorage.setItem('notRegistered', 'true');
-
           navigate('/not-registered');
-
           await signOut(auth);
-          console.log('🚪 User telah logout karena tidak terdaftar');
         }
+      } else {
+        throw new Error('Email tidak ditemukan dari Google Auth.');
       }
     } catch (error: any) {
-      console.error('🔥 Login Failed:', error);
       setError('Login gagal. Silakan coba lagi.');
     }
   };
