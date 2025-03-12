@@ -119,14 +119,12 @@ export default function ClassPage() {
   return (
     <DefaultLayout>
       <div className='flex flex-col md:flex-row h-screen p-6 gap-4'>
-        {/* Sidebar Video List */}
         <VideoSidebar
           videoSections={videoSections}
           selectedVideo={selectedVideo}
           setSelectedVideo={setSelectedVideo}
         />
 
-        {/* Video Player & Review Section */}
         <div className='flex-1'>
           {selectedVideo ? (
             <VideoPlayer video={selectedVideo} />
@@ -136,7 +134,6 @@ export default function ClassPage() {
             </p>
           )}
 
-          {/* Form untuk Menulis Review */}
           {user?.role !== 'admin' && selectedVideo && (
             <SummaryForm
               summary={summary}
@@ -146,7 +143,6 @@ export default function ClassPage() {
             />
           )}
 
-          {/* Admin hanya melihat hasil review berdasarkan video ID */}
           {user?.role === 'admin' && (
             <SummaryList
               summaries={summaries}
@@ -159,7 +155,6 @@ export default function ClassPage() {
   );
 }
 
-/* Component untuk Sidebar Video */
 function VideoSidebar({ videoSections, selectedVideo, setSelectedVideo }: any) {
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
 
@@ -213,7 +208,6 @@ function VideoSidebar({ videoSections, selectedVideo, setSelectedVideo }: any) {
   );
 }
 
-/* Component untuk Menampilkan Video */
 function VideoPlayer({ video }: any) {
   return (
     <Card className='shadow-lg bg-gray-100 dark:bg-gray-800'>
@@ -233,7 +227,6 @@ function VideoPlayer({ video }: any) {
   );
 }
 
-/* Component Form Summary */
 function SummaryForm({ summary, setSummary, handleSubmit, message }: any) {
   return (
     <div className='mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg'>
@@ -256,7 +249,6 @@ function SummaryForm({ summary, setSummary, handleSubmit, message }: any) {
   );
 }
 
-/* Component List Summary */
 function SummaryList({ summaries, videoTitle }: any) {
   return (
     <div className='mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-lg'>

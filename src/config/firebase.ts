@@ -19,22 +19,17 @@ const firebaseConfig = {
   appId: import.meta.env.VITE_FIREBASE_APP_ID,
 };
 
-// 🔹 Inisialisasi Firebase
 const app = initializeApp(firebaseConfig);
 
-// 🔹 Setup Firebase Auth
 const auth = getAuth(app);
 const provider = new GoogleAuthProvider();
 
-// 🔹 Inisialisasi Firestore
-const db = getFirestore(app); // 🔥 Firestore ditambahkan di sini
+const db = getFirestore(app);
 
-// 🔹 Set bahasa autentikasi ke bahasa perangkat pengguna
 auth.useDeviceLanguage();
 
-// 🔹 Gunakan persistensi agar sesi login tetap ada setelah reload
 setPersistence(auth, browserLocalPersistence)
   .then(() => console.log("Firebase auth persistence set to local"))
   .catch((error) => console.error("Failed to set auth persistence:", error));
 
-export { auth, provider, signInWithPopup, getRedirectResult, signOut, db }; // 🔹 Ekspor `db`
+export { auth, provider, signInWithPopup, getRedirectResult, signOut, db };

@@ -1,10 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Card, CardBody } from '@heroui/react';
 import { FcGoogle } from 'react-icons/fc';
 import { auth, provider } from '@/config/firebase';
-import { signInWithPopup } from 'firebase/auth';
-import { doc, setDoc, getDoc } from 'firebase/firestore';
+import { signInWithPopup, signOut } from 'firebase/auth';
+import { doc, getDoc } from 'firebase/firestore';
 import { db } from '@/config/firebase';
 import { useAuthStore } from '@/store/useAuthStore';
 import { ThemeSwitch } from '@/components/theme-switch';
@@ -12,46 +12,67 @@ import { ThemeSwitch } from '@/components/theme-switch';
 export default function LoginPage() {
   const navigate = useNavigate();
   const { user, setUser } = useAuthStore();
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (user) navigate('/dashboard');
+    if (user) {
+      console.log('✅ User sudah login, redirect ke dashboard');
+      navigate('/dashboard');
+    }
   }, [user, navigate]);
 
+  useEffect(() => {
+    console.log('🛑 Error State Updated:', error);
+  }, [error]);
+
   const handleGoogleSignIn = async () => {
+    setError(null);
+    console.log('🔄 Memulai proses login...');
+
     try {
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
+      console.log('🔍 User Google Auth:', user);
+      console.log('🔥 Firestore instance:', db);
+
       if (user) {
         const userDocRef = doc(db, 'users', user.uid);
-        const userDoc = await getDoc(userDocRef);
+        console.log('📂 Mencari user di Firestore dengan UID:', user.uid);
 
-        let role = 'user'; // Default role
+        const userDoc = await getDoc(userDocRef);
+        console.log(
+          '📃 Firestore Response:',
+          userDoc.exists() ? userDoc.data() : 'User tidak ditemukan'
+        );
 
         if (userDoc.exists()) {
-          role = userDoc.data().role; // Jika user sudah ada, ambil role-nya
-        } else {
-          // 🔹 Jika user baru, simpan ke Firestore dengan role default
-          await setDoc(userDocRef, {
-            name: user.displayName || 'User',
+          console.log('✅ User ditemukan di Firestore:', userDoc.data());
+
+          const userData = userDoc.data();
+          setUser({
+            uid: user.uid,
+            displayName: user.displayName || 'User',
             email: user.email || '',
-            role: 'user', // Default role adalah "user"
+            photoURL: user.photoURL || '',
+            role: userData.role || 'user',
           });
+
+          navigate('/dashboard');
+        } else {
+          console.log('❌ User tidak terdaftar di Firestore!');
+
+          localStorage.setItem('notRegistered', 'true');
+
+          navigate('/not-registered');
+
+          await signOut(auth);
+          console.log('🚪 User telah logout karena tidak terdaftar');
         }
-
-        // 🔹 Simpan user ke Zustand state
-        setUser({
-          uid: user.uid,
-          displayName: user.displayName || 'User',
-          email: user.email || '',
-          photoURL: user.photoURL || '',
-          role, // Simpan role user dari Firestore
-        });
-
-        navigate('/dashboard'); // 🔹 Navigasi setelah login sukses
       }
     } catch (error: any) {
-      console.error('Login Failed:', error);
+      console.error('🔥 Login Failed:', error);
+      setError('Login gagal. Silakan coba lagi.');
     }
   };
 
@@ -74,6 +95,12 @@ export default function LoginPage() {
             <FcGoogle className='text-2xl' />
             <span>Sign in with Google</span>
           </Button>
+
+          {error && (
+            <p key={error} className='mt-4 text-red-500 text-sm'>
+              {error}
+            </p>
+          )}
         </CardBody>
       </Card>
 

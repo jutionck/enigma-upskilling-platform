@@ -20,7 +20,7 @@ export const useAuthListener = () => {
           displayName: user.displayName || "User",
           email: user.email || "",
           photoURL: user.photoURL || "",
-          role, // 🔹 Simpan role dari Firestore
+          role,
         };
 
         setUser(userData);
