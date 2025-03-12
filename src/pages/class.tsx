@@ -13,6 +13,7 @@ import { useAuthStore } from '@/store/useAuthStore';
 import { useAuthListener } from '@/hooks/useAuthListener';
 import { db } from '@/config/firebase';
 import { collection, getDocs, query, where, addDoc } from 'firebase/firestore';
+import { ChevronDown, ChevronRight } from 'lucide-react';
 
 const videoSections = [
   {
@@ -160,29 +161,52 @@ export default function ClassPage() {
 
 /* Component untuk Sidebar Video */
 function VideoSidebar({ videoSections, selectedVideo, setSelectedVideo }: any) {
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({});
+
+  const toggleSection = (section: string) => {
+    setOpenSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
+  };
+
   return (
     <div className='w-full md:w-80 bg-gray-200 dark:bg-gray-800 p-4 rounded-lg shadow'>
-      <h2 className='text-lg font-semibold text-center text-gray-900 dark:text-white'>
-        Course Cybersecurity
-      </h2>
       {videoSections.map((section: any) => (
         <div key={section.section} className='mt-4'>
-          <h3 className='font-semibold text-gray-900 dark:text-white'>
-            {section.section}
-          </h3>
-          {section.videos.map((video: any) => (
-            <Button
-              key={video.id}
-              className={`w-full mt-2 ${
-                selectedVideo?.id === video.id
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-300 dark:bg-gray-700 dark:text-white'
-              }`}
-              onPress={() => setSelectedVideo(video)}
-            >
-              {video.title}
-            </Button>
-          ))}
+          {/* Header Section dengan Toggle */}
+          <div
+            className='flex items-center justify-between cursor-pointer p-2 hover:bg-gray-300 dark:hover:bg-gray-700 rounded-md'
+            onClick={() => toggleSection(section.section)}
+          >
+            <h2 className='font-semibold text-gray-900 dark:text-white'>
+              {section.section}
+            </h2>
+            {openSections[section.section] ? (
+              <ChevronDown className='w-5 h-5 text-gray-600 dark:text-gray-300' />
+            ) : (
+              <ChevronRight className='w-5 h-5 text-gray-600 dark:text-gray-300' />
+            )}
+          </div>
+
+          {/* List Video (Hanya muncul jika section terbuka) */}
+          {openSections[section.section] && (
+            <div className='pl-4'>
+              {section.videos.map((video: any) => (
+                <Button
+                  key={video.id}
+                  className={`w-full mt-2 ${
+                    selectedVideo?.id === video.id
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-gray-300 dark:bg-gray-700 dark:text-white'
+                  }`}
+                  onPress={() => setSelectedVideo(video)}
+                >
+                  {video.title}
+                </Button>
+              ))}
+            </div>
+          )}
         </div>
       ))}
     </div>
