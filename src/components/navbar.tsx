@@ -27,12 +27,13 @@ export const Navbar = () => {
   // Handle login dengan Google
   const handleGoogleSignIn = async () => {
     try {
-      const result = await signInWithPopup(auth, provider);
+      const result: any = await signInWithPopup(auth, provider);
       setUser({
         uid: result.user.uid,
         displayName: result.user.displayName || 'User',
         email: result.user.email || '',
         photoURL: result.user.photoURL || '',
+        role: result.user.role,
       });
       navigate('/dashboard');
     } catch (error) {
