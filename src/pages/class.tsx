@@ -21,7 +21,7 @@ const videoSections = [
       {
         id: '1',
         title: 'Introduction to Cybersecurity',
-        url: 'https://www.youtube.com/embed/P4vHx4Ym0S8',
+        url: 'https://videos.dyntube.com/iframes/5AXyqbQZUkimLIpPE8CA',
         description: 'Memahami dasar-dasar Cybersecurity.',
       },
     ],
@@ -192,7 +192,7 @@ function VideoSidebar({ videoSections, selectedVideo, setSelectedVideo }: any) {
 /* Component untuk Menampilkan Video */
 function VideoPlayer({ video }: any) {
   return (
-    <Card className='shadow-lg bg-white bg-gray-100 dark:bg-gray-800'>
+    <Card className='shadow-lg bg-gray-100 dark:bg-gray-800'>
       <CardHeader className='text-gray-900 dark:text-white'>
         {video?.title || 'Judul Tidak Diketahui'}
       </CardHeader>
@@ -201,6 +201,7 @@ function VideoPlayer({ video }: any) {
           className='w-full aspect-video rounded-lg'
           src={video?.url || ''}
           title={video?.title || 'Video Tidak Diketahui'}
+          sandbox='allow-scripts allow-same-origin allow-presentation'
           allowFullScreen
         ></iframe>
       </CardBody>
