@@ -1,4 +1,4 @@
-# Vite & HeroUI Template
+# Enigmacamp Upskilling Platform
 
 This is a template for creating applications using Vite and HeroUI (v2).
 
@@ -12,6 +12,7 @@ This is a template for creating applications using Vite and HeroUI (v2).
 - [Tailwind Variants](https://tailwind-variants.org)
 - [TypeScript](https://www.typescriptlang.org)
 - [Framer Motion](https://www.framer.com/motion)
+- [Firebase Auth & Firestore](https://console.firebase.google.com)
 
 ## How to Use
 
@@ -21,18 +22,22 @@ To clone the project, run the following command:
 git clone https://github.com/frontio-ai/vite-template.git
 ```
 
+## Create an Environment
+
+Copy file `.env.example` become `.env`. After that go to https://console.firebase.google.com for setup your firebase key.
+
 ### Install dependencies
 
-You can use one of them `npm`, `yarn`, `pnpm`, `bun`, Example using `npm`:
+You can use one of them `npm`, `yarn`, `pnpm`, `bun`, Example using `pnpm`:
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### Run the development server
 
 ```bash
-npm run dev
+pnpm dev
 ```
 
 ### Setup pnpm (optional)
