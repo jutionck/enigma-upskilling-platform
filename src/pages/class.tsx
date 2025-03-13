@@ -1,5 +1,5 @@
-import { useState, useEffect, useCallback } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   Card,
   CardHeader,
@@ -7,23 +7,24 @@ import {
   Avatar,
   Button,
   Textarea,
-} from '@heroui/react';
-import DefaultLayout from '@/layouts/default';
-import { useAuthStore } from '@/store/useAuthStore';
-import { useAuthListener } from '@/hooks/useAuthListener';
-import { db } from '@/config/firebase';
-import { collection, getDocs, query, where, addDoc } from 'firebase/firestore';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+} from "@heroui/react";
+import { collection, getDocs, query, where, addDoc } from "firebase/firestore";
+import { ChevronDown, ChevronRight } from "lucide-react";
+
+import DefaultLayout from "@/layouts/default";
+import { useAuthStore } from "@/store/useAuthStore";
+import { useAuthListener } from "@/hooks/useAuthListener";
+import { db } from "@/config/firebase";
 
 const videoSections = [
   {
-    section: 'Intro to Cybersecurity',
+    section: "Intro to Cybersecurity",
     videos: [
       {
-        id: '1',
-        title: 'Introduction to Cybersecurity',
-        url: 'https://videos.dyntube.com/iframes/5AXyqbQZUkimLIpPE8CA',
-        description: 'Memahami dasar-dasar Cybersecurity.',
+        id: "1",
+        title: "Introduction to Cybersecurity",
+        url: "https://videos.dyntube.com/iframes/5AXyqbQZUkimLIpPE8CA",
+        description: "Memahami dasar-dasar Cybersecurity.",
       },
     ],
   },
@@ -45,15 +46,15 @@ export default function ClassPage() {
   const { user } = useAuthStore();
   const navigate = useNavigate();
   const [selectedVideo, setSelectedVideo] = useState(
-    videoSections[0]?.videos[0] || null
+    videoSections[0]?.videos[0] || null,
   );
-  const [summary, setSummary] = useState('');
-  const [message, setMessage] = useState('');
+  const [summary, setSummary] = useState("");
+  const [message, setMessage] = useState("");
   const [summaries, setSummaries] = useState<Summary[]>([]);
 
   useEffect(() => {
     if (!user) {
-      navigate('/login', { replace: true });
+      navigate("/login", { replace: true });
     }
   }, [user, navigate]);
 
@@ -61,10 +62,10 @@ export default function ClassPage() {
     if (!user || !selectedVideo) return;
 
     try {
-      const summariesCollection = collection(db, 'videoSummaries');
+      const summariesCollection = collection(db, "videoSummaries");
       const q = query(
         summariesCollection,
-        where('videoId', '==', selectedVideo.id)
+        where("videoId", "==", selectedVideo.id),
       );
       const querySnapshot = await getDocs(q);
 
@@ -72,12 +73,10 @@ export default function ClassPage() {
         querySnapshot.docs.map((doc) => ({
           id: doc.id,
           ...(doc.data() as Summary),
-          photoURL: doc.data().photoURL || '',
-        }))
+          photoURL: doc.data().photoURL || "",
+        })),
       );
-    } catch (error) {
-      console.error('Error fetching summaries:', error);
-    }
+    } catch (error) {}
   }, [user, selectedVideo]);
 
   useEffect(() => {
@@ -86,19 +85,21 @@ export default function ClassPage() {
 
   const handleSummarySubmit = async () => {
     if (!summary.trim()) {
-      setMessage('Harap tulis rangkuman sebelum mengirim.');
+      setMessage("Harap tulis rangkuman sebelum mengirim.");
+
       return;
     }
 
     if (!user || !selectedVideo) {
-      setMessage('Terjadi kesalahan, silakan coba lagi.');
+      setMessage("Terjadi kesalahan, silakan coba lagi.");
+
       return;
     }
 
     const newSummary: Summary = {
-      name: user.displayName || 'User',
-      email: user.email || 'unknown@example.com',
-      photoURL: user.photoURL || '/default-avatar.png',
+      name: user.displayName || "User",
+      email: user.email || "unknown@example.com",
+      photoURL: user.photoURL || "/default-avatar.png",
       videoId: selectedVideo.id,
       videoTitle: selectedVideo.title,
       summary,
@@ -106,44 +107,43 @@ export default function ClassPage() {
     };
 
     try {
-      await addDoc(collection(db, 'videoSummaries'), newSummary);
+      await addDoc(collection(db, "videoSummaries"), newSummary);
       setSummaries((prev) => [...prev, newSummary]);
-      setMessage('Rangkuman telah disimpan.');
-      setSummary('');
+      setMessage("Rangkuman telah disimpan.");
+      setSummary("");
     } catch (error) {
-      console.error('Error submitting summary:', error);
-      setMessage('Terjadi kesalahan saat menyimpan rangkuman.');
+      setMessage("Terjadi kesalahan saat menyimpan rangkuman.");
     }
   };
 
   return (
     <DefaultLayout>
-      <div className='flex flex-col md:flex-row h-screen p-6 gap-4'>
+      <div className="flex flex-col md:flex-row h-screen p-6 gap-4">
         <VideoSidebar
-          videoSections={videoSections}
           selectedVideo={selectedVideo}
           setSelectedVideo={setSelectedVideo}
+          videoSections={videoSections}
         />
 
-        <div className='flex-1'>
+        <div className="flex-1">
           {selectedVideo ? (
             <VideoPlayer video={selectedVideo} />
           ) : (
-            <p className='text-center text-gray-700 dark:text-gray-500'>
+            <p className="text-center text-gray-700 dark:text-gray-500">
               Tidak ada video yang tersedia.
             </p>
           )}
 
-          {user?.role !== 'admin' && selectedVideo && (
+          {user?.role !== "admin" && selectedVideo && (
             <SummaryForm
-              summary={summary}
-              setSummary={setSummary}
               handleSubmit={handleSummarySubmit}
               message={message}
+              setSummary={setSummary}
+              summary={summary}
             />
           )}
 
-          {user?.role === 'admin' && (
+          {user?.role === "admin" && (
             <SummaryList
               summaries={summaries}
               videoTitle={selectedVideo?.title}
@@ -166,34 +166,34 @@ function VideoSidebar({ videoSections, selectedVideo, setSelectedVideo }: any) {
   };
 
   return (
-    <div className='w-full md:w-80 bg-gray-200 dark:bg-gray-800 p-4 rounded-lg shadow'>
+    <div className="w-full md:w-80 bg-gray-200 dark:bg-gray-800 p-4 rounded-lg shadow">
       {videoSections.map((section: any) => (
-        <div key={section.section} className='mt-4'>
+        <div key={section.section} className="mt-4">
           {/* Header Section dengan Toggle */}
           <div
-            className='flex items-center justify-between cursor-pointer p-2 hover:bg-gray-300 dark:hover:bg-gray-700 rounded-md'
+            className="flex items-center justify-between cursor-pointer p-2 hover:bg-gray-300 dark:hover:bg-gray-700 rounded-md"
             onClick={() => toggleSection(section.section)}
           >
-            <h2 className='font-semibold text-gray-900 dark:text-white'>
+            <h2 className="font-semibold text-gray-900 dark:text-white">
               {section.section}
             </h2>
             {openSections[section.section] ? (
-              <ChevronDown className='w-5 h-5 text-gray-600 dark:text-gray-300' />
+              <ChevronDown className="w-5 h-5 text-gray-600 dark:text-gray-300" />
             ) : (
-              <ChevronRight className='w-5 h-5 text-gray-600 dark:text-gray-300' />
+              <ChevronRight className="w-5 h-5 text-gray-600 dark:text-gray-300" />
             )}
           </div>
 
           {/* List Video (Hanya muncul jika section terbuka) */}
           {openSections[section.section] && (
-            <div className='pl-4'>
+            <div className="pl-4">
               {section.videos.map((video: any) => (
                 <Button
                   key={video.id}
                   className={`w-full mt-2 ${
                     selectedVideo?.id === video.id
-                      ? 'bg-blue-600 text-white'
-                      : 'bg-gray-300 dark:bg-gray-700 dark:text-white'
+                      ? "bg-blue-600 text-white"
+                      : "bg-gray-300 dark:bg-gray-700 dark:text-white"
                   }`}
                   onPress={() => setSelectedVideo(video)}
                 >
@@ -210,18 +210,18 @@ function VideoSidebar({ videoSections, selectedVideo, setSelectedVideo }: any) {
 
 function VideoPlayer({ video }: any) {
   return (
-    <Card className='shadow-lg bg-gray-100 dark:bg-gray-800'>
-      <CardHeader className='text-gray-900 dark:text-white'>
-        {video?.title || 'Judul Tidak Diketahui'}
+    <Card className="shadow-lg bg-gray-100 dark:bg-gray-800">
+      <CardHeader className="text-gray-900 dark:text-white">
+        {video?.title || "Judul Tidak Diketahui"}
       </CardHeader>
       <CardBody>
         <iframe
-          className='w-full aspect-video rounded-lg'
-          src={video?.url || ''}
-          title={video?.title || 'Video Tidak Diketahui'}
-          sandbox='allow-scripts allow-same-origin allow-presentation'
           allowFullScreen
-        ></iframe>
+          className="w-full aspect-video rounded-lg"
+          sandbox="allow-scripts allow-same-origin allow-presentation"
+          src={video?.url || ""}
+          title={video?.title || "Video Tidak Diketahui"}
+        />
       </CardBody>
     </Card>
   );
@@ -229,21 +229,21 @@ function VideoPlayer({ video }: any) {
 
 function SummaryForm({ summary, setSummary, handleSubmit, message }: any) {
   return (
-    <div className='mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg'>
-      <h3 className='text-lg font-semibold text-gray-900 dark:text-white'>
+    <div className="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg">
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white">
         Tulis Rangkuman
       </h3>
       <Textarea
-        className='w-full mt-2 bg-white dark:bg-gray-700 dark:text-white'
-        placeholder='Tulis rangkuman dari video...'
+        className="w-full mt-2 bg-white dark:bg-gray-700 dark:text-white"
+        placeholder="Tulis rangkuman dari video..."
         value={summary}
         onChange={(e) => setSummary(e.target.value)}
       />
-      <Button className='mt-4 bg-blue-600 text-white' onPress={handleSubmit}>
+      <Button className="mt-4 bg-blue-600 text-white" onPress={handleSubmit}>
         Simpan Rangkuman
       </Button>
       {message && (
-        <p className='mt-2 text-green-600 dark:text-green-400'>{message}</p>
+        <p className="mt-2 text-green-600 dark:text-green-400">{message}</p>
       )}
     </div>
   );
@@ -251,41 +251,41 @@ function SummaryForm({ summary, setSummary, handleSubmit, message }: any) {
 
 function SummaryList({ summaries, videoTitle }: any) {
   return (
-    <div className='mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-lg'>
-      <h3 className='text-lg font-semibold text-gray-900 dark:text-white mb-4'>
+    <div className="mt-4 p-4 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-lg">
+      <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
         Hasil Review User - {videoTitle}
       </h3>
       {summaries.length > 0 ? (
         summaries.map((item: any) => (
-          <Card className='max-w-[340px] mb-4'>
-            <CardHeader className='justify-between'>
-              <div className='flex gap-5'>
+          <Card className="max-w-[340px] mb-4">
+            <CardHeader className="justify-between">
+              <div className="flex gap-5">
                 <Avatar
                   isBordered
-                  radius='full'
-                  size='md'
+                  radius="full"
+                  size="md"
                   src={
                     item.photoURL ||
-                    'https://sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png'
+                    "https://sbcf.fr/wp-content/uploads/2018/03/sbcf-default-avatar.png"
                   }
                 />
-                <div className='flex flex-col gap-1 items-start justify-center'>
-                  <h4 className='text-small font-semibold leading-none text-default-600'>
+                <div className="flex flex-col gap-1 items-start justify-center">
+                  <h4 className="text-small font-semibold leading-none text-default-600">
                     {item.name}
                   </h4>
-                  <h5 className='text-small tracking-tight text-gray-900 dark:text-white'>
-                    @{item.email.split('@')[0]}
+                  <h5 className="text-small tracking-tight text-gray-900 dark:text-white">
+                    @{item.email.split("@")[0]}
                   </h5>
                 </div>
               </div>
             </CardHeader>
-            <CardBody className='px-3 py-0 text-small text-gray-900 dark:text-white mb-4'>
+            <CardBody className="px-3 py-0 text-small text-gray-900 dark:text-white mb-4">
               <p>{item.summary}</p>
             </CardBody>
           </Card>
         ))
       ) : (
-        <p className='text-gray-400'>Belum ada review untuk video ini.</p>
+        <p className="text-gray-400">Belum ada review untuk video ini.</p>
       )}
     </div>
   );

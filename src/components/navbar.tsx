@@ -10,13 +10,12 @@ import {
   link as linkStyles,
   Button,
 } from '@heroui/react';
-
 import { useNavigate } from 'react-router-dom';
 import clsx from 'clsx';
+import { FaDiscord } from 'react-icons/fa';
+
 import { siteConfig } from '@/config/site';
 import { ThemeSwitch } from '@/components/theme-switch';
-import { DiscordIcon } from '@/components/icons';
-import { Logo } from '@/components/icons';
 import { useAuthStore } from '@/store/useAuthStore';
 import { auth, signInWithPopup, provider, signOut } from '@/config/firebase';
 
@@ -24,10 +23,10 @@ export const Navbar = () => {
   const navigate = useNavigate();
   const { user, setUser } = useAuthStore();
 
-  // Handle login dengan Google
   const handleGoogleSignIn = async () => {
     try {
       const result: any = await signInWithPopup(auth, provider);
+
       setUser({
         uid: result.user.uid,
         displayName: result.user.displayName || 'User',
@@ -61,7 +60,6 @@ export const Navbar = () => {
             color='foreground'
             href='/'
           >
-            <Logo />
             <p className='font-bold text-inherit'>Enigma Upskilling Platform</p>
           </Link>
         </NavbarBrand>
@@ -89,17 +87,16 @@ export const Navbar = () => {
       >
         <NavbarItem className='hidden sm:flex gap-2'>
           <Link isExternal href={siteConfig.links.discord} title='Discord'>
-            <DiscordIcon className='text-default-500' />
+            <FaDiscord className='text-default-500 text-2xl' />
           </Link>
           <ThemeSwitch />
 
-          {/* 🔹 Tampilkan Login/Logout sesuai status user */}
           {user ? (
             <div className='flex items-center gap-3'>
               <img
-                src={user.photoURL}
                 alt='User Avatar'
                 className='w-8 h-8 rounded-full'
+                src={user.photoURL}
               />
               <Button color='danger' size='sm' onPress={handleLogout}>
                 Logout
@@ -113,10 +110,9 @@ export const Navbar = () => {
         </NavbarItem>
       </NavbarContent>
 
-      {/* 🔹 Mobile Menu */}
       <NavbarContent className='sm:hidden basis-1 pl-4' justify='end'>
         <Link isExternal href={siteConfig.links.discord}>
-          <DiscordIcon className='text-default-500' />
+          <FaDiscord className='text-default-500 text-2xl' />
         </Link>
         <ThemeSwitch />
         <NavbarMenuToggle />
@@ -146,8 +142,8 @@ export const Navbar = () => {
             <NavbarMenuItem>
               <Button
                 className='w-full'
-                size='lg'
                 color='danger'
+                size='lg'
                 onPress={handleLogout}
               >
                 Logout
